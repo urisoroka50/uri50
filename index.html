@@ -78,6 +78,11 @@
   .bar { display: flex; justify-content: space-between; gap: 16px; font-size: 0.9375rem; font-weight: 500; }
   .bar a { color: var(--cream); text-underline-offset: 4px; }
   .pitch { align-self: end; display: grid; gap: 18px; max-width: 40rem; }
+  @media (max-width: 879px) {
+    .arch { top: 60px; }
+    .pitch { margin-top: calc(min(86.4vw, 608px) + 64px); }
+    .floor { top: calc(min(86.4vw, 608px) + 40px); height: 200px; }
+  }
   h1 { font: 300 clamp(2.75rem, 12.5vw, 5.5rem)/0.98 var(--font); letter-spacing: -0.045em; text-wrap: balance; }
   h1 span { display: block; }
   .lede { font-size: clamp(1.125rem, 4.6vw, 1.5rem); line-height: 1.35; font-weight: 300; letter-spacing: -0.015em; color: var(--dim); max-width: 30em; }
@@ -143,6 +148,8 @@
   @media (min-width: 880px) {
     .hero { padding: 34px 48px 56px; }
     .arch { right: 12%; top: 8%; width: min(30%, 400px); }
+    .pitch { max-width: 52%; }
+    h1 { font-size: clamp(3rem, 5.4vw, 5.5rem); }
     .below { grid-template-columns: 1.15fr 0.85fr 1.1fr; }
     .panel { padding: 48px 40px; }
     footer { padding: 28px 48px 44px; }
