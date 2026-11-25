@@ -118,6 +118,7 @@
   }
   input:focus { border-bottom-color: var(--night); }
   .list input:focus-visible, .list button:focus-visible { outline-color: var(--night); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .field { display: grid; gap: 6px; }
   .phone { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: end; }
   select {
@@ -213,6 +214,7 @@
           <label><input type="radio" name="guests" value="2" id="f-g2"><span>2</span></label>
           <label><input type="radio" name="guests" value="3" id="f-g3"><span>3</span></label>
         </fieldset>
+        <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input id="f-web" name="website" tabindex="-1" autocomplete="off"></div>
         <button type="submit" id="send">I'm in</button>
         <p class="fine" id="hint">There is no "maybe" button. That's deliberate.</p>
       </form>
@@ -239,18 +241,19 @@
   /* Turns what people type into one international number, or "" if it can't be right.
      Handles a leading 0 (Israel, UK, Ukraine, UAE), Russia's leading 8, a repeated country code, and +/00 prefixes. */
   function fullNumber(raw, sel) {
-    var opt = sel.options[sel.selectedIndex], code = opt.value, min = +opt.getAttribute('data-min'), max = +opt.getAttribute('data-max');
+    var opt = sel.options[sel.selectedIndex], code = opt.value, max = +opt.getAttribute('data-max');
     var t = String(raw).trim(), d = t.replace(/\D/g, '');
-    if (t.charAt(0) === '+') return d.length >= 8 && d.length <= 15 ? '+' + d : '';
+    if (t.charAt(0) === '+') return d.length >= 7 && d.length <= 15 ? '+' + d : '';
     if (d.indexOf('00') === 0) { d = d.slice(2); return d.length >= 8 && d.length <= 15 ? '+' + d : ''; }
     if (!code) return '';
     var n = d.replace(/^0+/, '');
     if (n.indexOf(code) === 0 && n.length > max) n = n.slice(code.length).replace(/^0+/, '');
     if (code === '7' && n.length === 11 && n.charAt(0) === '8') n = n.slice(1);
-    return n.length >= min && n.length <= max ? '+' + code + n : '';
+    return n.length >= 6 && n.length <= 14 ? '+' + code + n : '';
   }
 
   (function () {
+    var loadedAt = Date.now();
     var form = document.getElementById('rsvp'), result = document.getElementById('result'),
         hint = document.getElementById('hint'), send = document.getElementById('send');
     form.addEventListener('submit', function (e) {
@@ -263,8 +266,11 @@
       }
       if (!SHEET_URL) { hint.textContent = T.draft; return; }
       send.disabled = true; send.textContent = T.sending;
+      var secs = Math.round((Date.now() - loadedAt) / 1000);
+      if (form.elements.website.value || secs < 3) { form.hidden = true; result.hidden = false; result.textContent = T.done(name.split(' ')[0]); return; }
       var body = new URLSearchParams(new FormData(form));
       body.set('whatsapp', phone);
+      body.set('secs', secs);
       body.append('lang', LANG);
       fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: body }).then(function () {
         form.hidden = true; result.hidden = false;
