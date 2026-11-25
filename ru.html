@@ -113,6 +113,13 @@
   }
   input:focus { border-bottom-color: var(--night); }
   .list input:focus-visible, .list button:focus-visible { outline-color: var(--night); }
+  .field { display: grid; gap: 6px; }
+  .phone { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: end; }
+  select {
+    font: 400 1.0625rem/1.2 var(--font); color: var(--night); background: transparent; max-width: 11.5em;
+    border: 0; border-bottom: 1.5px solid rgba(11,7,5,0.45); border-radius: 0; padding: 8px 0 10px;
+  }
+  .list select:focus-visible { outline: 2px solid var(--night); outline-offset: 3px; }
   .count { border: 0; padding: 0; margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .count legend { padding: 0; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 600; }
   .count label { display: block; cursor: pointer; }
@@ -178,7 +185,21 @@
       <h2 id="h-list">В список гостей</h2>
       <form id="rsvp" novalidate>
         <label for="f-name">Имя и фамилия <input id="f-name" name="name" autocomplete="name" required></label>
-        <label for="f-phone">Номер телефона <small>тот, что в WhatsApp, с кодом страны</small> <input id="f-phone" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 555 123 4567" required></label>
+        <div class="field"><label for="f-phone">Номер телефона <small>тот, что в WhatsApp</small></label>
+          <div class="phone">
+            <select id="f-cc" aria-label="Код страны">
+              <option value="1" data-min="10" data-max="10" selected>США +1</option>
+              <option value="972" data-min="8" data-max="9">Израиль +972</option>
+              <option value="351" data-min="9" data-max="9">Португалия +351</option>
+              <option value="380" data-min="9" data-max="9">Украина +380</option>
+              <option value="971" data-min="8" data-max="9">ОАЭ (Дубай) +971</option>
+              <option value="44" data-min="9" data-max="10">Великобритания +44</option>
+              <option value="7" data-min="10" data-max="10">Россия +7</option>
+              <option value="" data-min="8" data-max="15">Другая: начните с +</option>
+            </select>
+            <input id="f-phone" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" required>
+          </div>
+        </div>
         <label for="f-email">Email <small>необязательно</small> <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email"></label>
         <fieldset class="count"><legend>Сколько вас будет?</legend>
           <label><input type="radio" name="guests" value="1" id="f-g1" checked><span>1</span></label>
@@ -202,17 +223,32 @@
   var SHEET_URL = "https://script.google.com/macros/s/AKfycbwFe1VUBGdE-Ccw88kh3UwdwUOUOuu-rsbGZPzDVG6vRUUhJ5M-hgO371WG3fkx-Xqt/exec";
   var LANG = "ru";
   var T = {
-    en: { name: "Add your name.", phone: "Add your phone number, with country code.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
-    ru: { name: "Укажите имя.", phone: "Укажите номер телефона с кодом страны.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
+    en: { name: "Add your name.", phone: "That phone number doesn't look right. Check the country and the digits.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
+    ru: { name: "Укажите имя.", phone: "Номер выглядит неверно. Проверьте страну и цифры.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
   }[LANG];
+
+
+  /* Turns what people type into one international number, or "" if it can't be right.
+     Handles a leading 0 (Israel, UK, Ukraine, UAE), Russia's leading 8, a repeated country code, and +/00 prefixes. */
+  function fullNumber(raw, sel) {
+    var opt = sel.options[sel.selectedIndex], code = opt.value, min = +opt.getAttribute('data-min'), max = +opt.getAttribute('data-max');
+    var t = String(raw).trim(), d = t.replace(/\D/g, '');
+    if (t.charAt(0) === '+') return d.length >= 8 && d.length <= 15 ? '+' + d : '';
+    if (d.indexOf('00') === 0) { d = d.slice(2); return d.length >= 8 && d.length <= 15 ? '+' + d : ''; }
+    if (!code) return '';
+    var n = d.replace(/^0+/, '');
+    if (n.indexOf(code) === 0 && n.length > max) n = n.slice(code.length).replace(/^0+/, '');
+    if (code === '7' && n.length === 11 && n.charAt(0) === '8') n = n.slice(1);
+    return n.length >= min && n.length <= max ? '+' + code + n : '';
+  }
 
   (function () {
     var form = document.getElementById('rsvp'), result = document.getElementById('result'),
         hint = document.getElementById('hint'), send = document.getElementById('send');
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var name = form.elements.name.value.trim(), phone = form.elements.whatsapp.value.trim();
-      if (!name || phone.replace(/\D/g, '').length < 7) {
+      var name = form.elements.name.value.trim(), phone = fullNumber(form.elements.whatsapp.value, document.getElementById('f-cc'));
+      if (!name || !phone) {
         hint.textContent = !name ? T.name : T.phone;
         (!name ? form.elements.name : form.elements.whatsapp).focus();
         return;
@@ -220,6 +256,7 @@
       if (!SHEET_URL) { hint.textContent = T.draft; return; }
       send.disabled = true; send.textContent = T.sending;
       var body = new URLSearchParams(new FormData(form));
+      body.set('whatsapp', phone);
       body.append('lang', LANG);
       fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: body }).then(function () {
         form.hidden = true; result.hidden = false;
