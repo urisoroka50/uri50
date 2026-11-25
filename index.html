@@ -113,6 +113,13 @@
   }
   input:focus { border-bottom-color: var(--night); }
   .list input:focus-visible, .list button:focus-visible { outline-color: var(--night); }
+  .count { border: 0; padding: 0; margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .count legend { padding: 0; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 600; }
+  .count label { display: block; cursor: pointer; }
+  .count input { position: absolute; opacity: 0; width: 1px; height: 1px; padding: 0; }
+  .count span { display: grid; place-items: center; width: 64px; height: 48px; border: 1.5px solid rgba(11,7,5,0.45); border-radius: 999px; font: 600 1.0625rem/1 var(--font); }
+  .count input:checked + span { background: var(--night); color: var(--cream); border-color: var(--night); }
+  .count input:focus-visible + span { outline: 2px solid var(--night); outline-offset: 3px; }
   button {
     justify-self: start; margin-top: 8px; cursor: pointer; border: 0;
     background: var(--night); color: var(--cream); font: 600 1.0625rem/1 var(--font);
@@ -173,7 +180,10 @@
         <label for="f-name">Your name <input id="f-name" name="name" autocomplete="name" required></label>
         <label for="f-phone">Phone number <small>the one you use for WhatsApp, with country code</small> <input id="f-phone" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 555 123 4567" required></label>
         <label for="f-email">Email <small>optional</small> <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email"></label>
-        <label for="f-plus">Bringing someone? <small>Their name, optional</small> <input id="f-plus" name="guests" autocomplete="off"></label>
+        <fieldset class="count"><legend>How many of you are coming?</legend>
+          <label><input type="radio" name="guests" value="1" id="f-g1" checked><span>1</span></label>
+          <label><input type="radio" name="guests" value="2" id="f-g2"><span>2</span></label>
+        </fieldset>
         <button type="submit" id="send">I'm in</button>
         <p class="fine" id="hint">There is no "maybe" button. That's deliberate.</p>
       </form>
