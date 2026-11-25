@@ -171,7 +171,8 @@
       <h2 id="h-list">В список гостей</h2>
       <form id="rsvp" novalidate>
         <label for="f-name">Имя и фамилия <input id="f-name" name="name" autocomplete="name" required></label>
-        <label for="f-phone">Номер WhatsApp <small>с кодом страны</small> <input id="f-phone" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 555 123 4567" required></label>
+        <label for="f-phone">Номер телефона <small>тот, что в WhatsApp, с кодом страны</small> <input id="f-phone" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 555 123 4567" required></label>
+        <label for="f-email">Email <small>необязательно</small> <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email"></label>
         <label for="f-plus">С кем приедете? <small>Имя, необязательно</small> <input id="f-plus" name="guests" autocomplete="off"></label>
         <button type="submit" id="send">Я буду</button>
         <p class="fine" id="hint">Кнопки «может быть» нет. Так задумано.</p>
@@ -188,11 +189,11 @@
 
 <script>
   /* Where sign-ups go: the web-app URL of the Google Sheet script. Empty = draft mode. */
-  var SHEET_URL = "";
+  var SHEET_URL = "https://script.google.com/macros/s/AKfycbwFe1VUBGdE-Ccw88kh3UwdwUOUOuu-rsbGZPzDVG6vRUUhJ5M-hgO371WG3fkx-Xqt/exec";
   var LANG = "ru";
   var T = {
-    en: { name: "Add your name.", phone: "Add your WhatsApp number, with country code.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
-    ru: { name: "Укажите имя.", phone: "Укажите номер WhatsApp с кодом страны.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
+    en: { name: "Add your name.", phone: "Add your phone number, with country code.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
+    ru: { name: "Укажите имя.", phone: "Укажите номер телефона с кодом страны.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
   }[LANG];
 
   (function () {
