@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//urisoroka.com//Uri 50//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:uri-50-lisbon@urisoroka.com
+DTSTAMP:20261126T000000Z
+DTSTART;VALUE=DATE:20270329
+DTEND;VALUE=DATE:20270331
+SUMMARY:Юре 50. Лиссабон
+LOCATION:Lisbon\, Portugal
+DESCRIPTION:Место\, тема и дресс-код появятся в группе WhatsApp. https://urisoroka.com/ru
+URL:https://urisoroka.com
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR

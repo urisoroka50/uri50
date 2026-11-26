@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//urisoroka.com//Uri 50//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:uri-50-lisbon@urisoroka.com
+DTSTAMP:20261126T000000Z
+DTSTART;VALUE=DATE:20270329
+DTEND;VALUE=DATE:20270331
+SUMMARY:Uri's 50th in Lisbon
+LOCATION:Lisbon\, Portugal
+DESCRIPTION:Venue\, theme and dress code will be sent to the WhatsApp group. https://urisoroka.com
+URL:https://urisoroka.com
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR

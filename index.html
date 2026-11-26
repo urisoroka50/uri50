@@ -143,6 +143,24 @@
   #result { font: 500 1.25rem/1.3 var(--font); letter-spacing: -0.02em; }
   #result[hidden], form[hidden] { display: none; }
 
+
+  /* ---------- confirmation ---------- */
+  .done { position: fixed; inset: 0; z-index: 10; overflow: auto; display: grid; place-items: center; padding: 28px 22px;
+    background: radial-gradient(120% 70% at 50% 0%, #6A3810 0%, #2A1608 42%, #0B0705 82%); }
+  .done[hidden] { display: none; }
+  .done-box { display: grid; gap: 20px; justify-items: center; text-align: center; max-width: 30rem; }
+  .tick { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 2.75rem; line-height: 1;
+    color: var(--night); background: linear-gradient(#FFF7E3, #FFD592 60%, #EE9C36); box-shadow: 0 0 70px 18px rgba(255, 186, 96, 0.4); }
+  .done h2 { font: 300 clamp(2.5rem, 11vw, 3.75rem)/1.02 var(--font); letter-spacing: -0.04em; text-wrap: balance; }
+  .done h2:focus { outline: none; }
+  .done-sub { font-size: 1.25rem; line-height: 1.4; color: var(--dim); }
+  .cal { display: block; width: 100%; text-align: center; text-decoration: none; margin-top: 8px;
+    background: var(--cream); color: var(--night); font: 700 1.375rem/1 var(--font); padding: 24px 28px; border-radius: 999px; }
+  .cal:hover { background: #fff; }
+  .done-alt { font-size: 1.0625rem; }
+  .done-alt a, .linkish { color: var(--cream); text-underline-offset: 4px; text-decoration: underline; }
+  .linkish { background: none; border: 0; padding: 6px; margin: 0; font: inherit; border-radius: 0; cursor: pointer; justify-self: center; }
+
   footer { padding: 26px 22px 40px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font-size: 0.9375rem; color: var(--dim); }
   footer a { color: var(--cream); text-underline-offset: 3px; }
 
@@ -223,6 +241,17 @@
   </div>
 </main>
 
+<section class="done" id="done" hidden aria-labelledby="done-title">
+  <div class="done-box">
+    <p class="tick" aria-hidden="true">&#10003;</p>
+    <h2 id="done-title" tabindex="-1">You're on the list, <span id="done-name"></span>.</h2>
+    <p class="done-sub">See you in Lisbon on March 29 and 30, 2027. We'll add you to the WhatsApp group.</p>
+    <a class="cal" id="cal-main" href="uri-50-lisbon.ics">Add to calendar</a>
+    <p class="done-alt"><a id="cal-alt" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Uri%27s%2050th%20in%20Lisbon&dates=20270329/20270331&location=Lisbon%2C%20Portugal" target="_blank" rel="noopener">Use Google Calendar instead</a></p>
+    <p class="done-alt"><button type="button" class="linkish" id="done-back">Back to the invitation</button></p>
+  </div>
+</section>
+
 <footer>
   <span>We'll add you to the WhatsApp group. Venue, theme and dress code land there.</span>
   <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Uri%27s%2050th%20in%20Lisbon&dates=20270329/20270331&location=Lisbon%2C%20Portugal" target="_blank" rel="noopener">Add to calendar</a>
@@ -233,8 +262,8 @@
   var SHEET_URL = "https://script.google.com/macros/s/AKfycbwFe1VUBGdE-Ccw88kh3UwdwUOUOuu-rsbGZPzDVG6vRUUhJ5M-hgO371WG3fkx-Xqt/exec";
   var LANG = "en";
   var T = {
-    en: { name: "Add your name.", phone: "That phone number doesn't look right. Check the country and the digits.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
-    ru: { name: "Укажите имя.", phone: "Номер выглядит неверно. Проверьте страну и цифры.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
+    en: { name: "Add your name.", phone: "That phone number doesn't look right. Check the country and the digits.", draft: "Draft: the sign-up sheet is not connected yet.", sending: "Sending", go: "I'm in", calFile: "Use Apple Calendar or Outlook instead", done: function (n) { return "You're on the list, " + n + ". See you in Lisbon."; }, fail: "That didn't send. Check your connection and try again." },
+    ru: { name: "Укажите имя.", phone: "Номер выглядит неверно. Проверьте страну и цифры.", draft: "Черновик: таблица ещё не подключена.", sending: "Отправляем", go: "Я буду", calFile: "Календарь iPhone или Outlook", done: function (n) { return "Вы в списке, " + n + ". До встречи в Лиссабоне."; }, fail: "Не отправилось. Проверьте связь и попробуйте ещё раз." }
   }[LANG];
 
 
@@ -256,6 +285,27 @@
     var loadedAt = Date.now();
     var form = document.getElementById('rsvp'), result = document.getElementById('result'),
         hint = document.getElementById('hint'), send = document.getElementById('send');
+
+    var doneEl = document.getElementById('done');
+    function showDone(first) {
+      document.getElementById('done-name').textContent = first;
+      doneEl.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+      document.getElementById('done-title').focus();
+    }
+    document.getElementById('done-back').addEventListener('click', function () {
+      doneEl.hidden = true;
+      document.documentElement.style.overflow = '';
+      form.hidden = true; result.hidden = false; result.textContent = T.done(document.getElementById('done-name').textContent);
+    });
+    // iPhone, iPad and Mac open the calendar file directly; everyone else gets Google Calendar first.
+    if (!/iPhone|iPad|Macintosh/.test(navigator.userAgent)) {
+      var main = document.getElementById('cal-main'), alt = document.getElementById('cal-alt'), file = main.getAttribute('href');
+      main.href = alt.href; main.target = '_blank'; main.rel = 'noopener';
+      alt.href = file; alt.removeAttribute('target'); alt.textContent = T.calFile;
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var name = form.elements.name.value.trim(), phone = fullNumber(form.elements.whatsapp.value, document.getElementById('f-cc'));
@@ -267,14 +317,13 @@
       if (!SHEET_URL) { hint.textContent = T.draft; return; }
       send.disabled = true; send.textContent = T.sending;
       var secs = Math.round((Date.now() - loadedAt) / 1000);
-      if (form.elements.website.value || secs < 3) { form.hidden = true; result.hidden = false; result.textContent = T.done(name.split(' ')[0]); return; }
+      if (form.elements.website.value || secs < 3) { showDone(name.split(' ')[0]); return; }
       var body = new URLSearchParams(new FormData(form));
       body.set('whatsapp', phone);
       body.set('secs', secs);
       body.append('lang', LANG);
       fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: body }).then(function () {
-        form.hidden = true; result.hidden = false;
-        result.textContent = T.done(name.split(' ')[0]);
+        showDone(name.split(' ')[0]);
       }).catch(function () {
         send.disabled = false; send.textContent = T.go;
         hint.textContent = T.fail;
